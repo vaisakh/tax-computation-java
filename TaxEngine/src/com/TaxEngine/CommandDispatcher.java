@@ -4,13 +4,19 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 public class CommandDispatcher {
-    private static ObjectFactory obj = new ObjectFactory("plugin.xml");
+    private static ObjectFactory obj = new ObjectFactory("plugins.xml");
 
     public static boolean dispatch(String archetype, COMPUTATION_CONTEXT ctx) throws NoSuchMethodException, IOException, InstantiationException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
-        boolean result = false;
         try {
             ComputationCommand cmd = obj.get(archetype, "singleton");
-            result =  (cmd == null) ? false : cmd.Execute(ctx);
+            if(cmd == null)
+                return false;
+
+            if(cmd.PreExecute(ctx)) {
+                boolean result = cmd.Execute(ctx);
+                cmd.PostExecute(ctx);
+                return result;
+            }
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -24,6 +30,6 @@ public class CommandDispatcher {
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
-        return result;
+        return false;
     }
 }

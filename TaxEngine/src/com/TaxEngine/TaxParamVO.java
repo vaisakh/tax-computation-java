@@ -7,6 +7,7 @@ public class TaxParamVO {
     public double allowance;
     public double deductions;
     public double cess;
+    public double surCharge;
     public double taxLiability;
     public boolean computed;
 
@@ -64,6 +65,14 @@ public class TaxParamVO {
 
     public void setTaxLiability(double taxLiability) {
         this.taxLiability = taxLiability;
+    }
+
+    public double getSurCharge() {
+        return surCharge;
+    }
+
+    public void setSurCharge(double surCharge) {
+        this.surCharge = surCharge;
     }
 
     public boolean getComputed() {

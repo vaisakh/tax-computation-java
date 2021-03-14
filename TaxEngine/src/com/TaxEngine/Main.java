@@ -3,8 +3,6 @@ package com.TaxEngine;
 
 public class Main {
 
-    public static void main(String[] args) {
-        System.out.println("RUN OBJ FACTORY");
-    }
+    public static void main(String[] args) {}
 
 }
