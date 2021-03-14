@@ -6,6 +6,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 public class TaxForm implements ActionListener {
     private JFrame frame = new JFrame();
@@ -30,6 +32,8 @@ public class TaxForm implements ActionListener {
     private JTextField deductionText = new JTextField(20);
     private JLabel cessLabel = new JLabel("Cess");
     private JTextField cessText = new JTextField(20);
+    private JLabel surChargeLabel = new JLabel("Surcharge");
+    private JTextField surChargeText = new JTextField(20);
     private JLabel outputLabel = new JLabel("Output : 0");
 
 
@@ -95,6 +99,11 @@ public class TaxForm implements ActionListener {
         cessText.setBounds(200, 20, 165, 25);
         panel.add(cessText);
 
+        surChargeLabel.setBounds(110, 20, 80, 25);
+        panel.add(surChargeLabel);
+        surChargeText.setBounds(200, 20, 165, 25);
+        panel.add(surChargeText);
+
         JButton button = new JButton("Submit");
         button.addActionListener(this);
         panel.add(button);
@@ -106,7 +115,7 @@ public class TaxForm implements ActionListener {
 
     }
 
-    public static void viewHandler(TaxForm taxForm) {
+    public static void viewHandler(TaxForm taxForm) throws NoSuchMethodException, IOException, InstantiationException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
         TaxableEntity entity = getEntityFromUI(taxForm);
 
         if(entity == null) {
@@ -114,19 +123,12 @@ public class TaxForm implements ActionListener {
             return;
         }
 
-        String archetype = computeArchetype(entity);
-        COMPUTATION_CONTEXT ctx = new COMPUTATION_CONTEXT();
-        TaxDTO dto = new TaxDTO();
-        dto.id = entity.id;
-        dto.taxParams = entity.taxParams;
-        ctx.put("tax_cargo", dto);
-        boolean result = CommandDispatcher.dispatch(archetype, ctx);
-
+        boolean result = TaxComputationFacade.compute(entity);
         if(result) {
             System.out.println("success!");
-            TaxDTO temp = (TaxDTO) ctx.get("tax_cargo");
-            taxForm.outputLabel.setText("DONE");
-            System.out.println(temp.taxParams.computed);
+            taxForm.outputLabel.setText(String.valueOf(entity.taxParams.taxLiability));
+        } else {
+            System.out.println("Failed");
         }
     }
 
@@ -157,6 +159,20 @@ public class TaxForm implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         outputLabel.setText("Calculating Tax Liability: ");
-        viewHandler(this);
+        try {
+            viewHandler(this);
+        } catch (NoSuchMethodException noSuchMethodException) {
+            noSuchMethodException.printStackTrace();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        } catch (InstantiationException instantiationException) {
+            instantiationException.printStackTrace();
+        } catch (IllegalAccessException illegalAccessException) {
+            illegalAccessException.printStackTrace();
+        } catch (InvocationTargetException invocationTargetException) {
+            invocationTargetException.printStackTrace();
+        } catch (ClassNotFoundException classNotFoundException) {
+            classNotFoundException.printStackTrace();
+        }
     }
 }
